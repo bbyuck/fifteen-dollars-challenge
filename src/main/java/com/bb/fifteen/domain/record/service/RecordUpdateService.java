@@ -1,6 +1,8 @@
 package com.bb.fifteen.domain.record.service;
 
 import com.bb.fifteen.domain.record.code.StageCode;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -9,7 +11,9 @@ import static com.bb.fifteen.domain.record.code.StageCode.*;
 import static java.util.Map.entry;
 import static java.util.Map.ofEntries;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class RecordUpdateService {
 
     private final Map<String, StageCode> STAGE_CODE_MAP = ofEntries(

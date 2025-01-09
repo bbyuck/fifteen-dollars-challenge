@@ -26,6 +26,12 @@ public class Player {
     @ManyToOne(fetch = FetchType.LAZY)
     private Team team;  // 선수가 속한 팀 -> 시즌별 팀
 
+    @Column(name = "summoner_name")
+    private String summonerName;
+
+    @Column(name = "name")
+    private String name;    // 선수 이름
+
     @OneToMany(mappedBy = "player")
     private List<PlayerRecord> playerRecords = new ArrayList<>();   // 선수 기록 목록
 

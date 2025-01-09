@@ -1,8 +1,6 @@
 package com.bb.fifteen.domain.record.entity;
 
-import com.bb.fifteen.domain.record.code.LeagueCode;
 import com.bb.fifteen.domain.record.code.ResultCode;
-import com.bb.fifteen.domain.record.code.StageCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,7 +29,7 @@ public class TeamRecord {
     @Column(name = "result_code")
     private ResultCode resultCode;  // 결과 코드
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")
     private Game game;              // 기록한 경기
 

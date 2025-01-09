@@ -16,4 +16,14 @@ public enum SeasonCode implements Code {
     CUP("LCK_CUP");
 
     private final String description;
+
+    public static SeasonCode get(String crawledData) {
+        return switch (crawledData) {
+            case "SPRING" -> SPR;
+            case "SUMMER" -> SUM;
+            case "WINTER" -> WIN;
+            case "LCK CUP" -> CUP;
+            default -> null;
+        };
+    }
 }
