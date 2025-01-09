@@ -28,7 +28,7 @@ public class Team {
     private Season season;          // 시즌별 팀을 구분하기 위한 시즌 정보
 
     @Column(name = "name")
-    private String name;
+    private String name;            // 해당 팀과 연관된 시즌의 팀 명
 
     @OneToMany(mappedBy = "team")
     private List<TeamRecord> records = new ArrayList<>();

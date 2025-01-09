@@ -1,6 +1,7 @@
 package com.bb.fifteen.domain.record.entity;
 
 import com.bb.fifteen.domain.record.code.LeagueCode;
+import com.bb.fifteen.domain.record.code.ResultCode;
 import com.bb.fifteen.domain.record.code.StageCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -26,12 +27,20 @@ public class TeamRecord {
     @JoinColumn(name = "team_id")
     private Team team;              // 기록을 소유한 팀
 
-    @Enumerated
-    @Column(name = "league_code")
-    private LeagueCode leagueCode;  // 기록을 남긴 리그의 코드
+    @Enumerated(EnumType.STRING)
+    @Column(name = "result_code")
+    private ResultCode resultCode;  // 결과 코드
 
-    @Enumerated
-    @Column(name = "stage_code")
-    private StageCode stageCode;    // 기록을 남긴 라운드
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id")
+    private Game game;              // 기록한 경기
 
+    @Column(name = "tower")
+    private int tower;              // 파괴한 타워
+    
+    @Column(name = "drake")
+    private int drake;              // 처치한 용
+    
+    @Column(name = "baron")
+    private int baron;              // 처치한 바론
 }

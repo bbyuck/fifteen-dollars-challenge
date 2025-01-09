@@ -21,11 +21,11 @@ public class Season {
     @Column(name = "id")
     private Long id;
 
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @Column(name = "code")
-    private SeasonCode code;
+    private SeasonCode code;        // 연도내의 시즌 코드
 
     @Column(name = "year")
-    private int year;
+    private int year;               // 연도
 
 }

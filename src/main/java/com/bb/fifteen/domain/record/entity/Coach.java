@@ -1,5 +1,6 @@
 package com.bb.fifteen.domain.record.entity;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,5 +22,11 @@ public class Coach {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_id")
-    private Team team;  // 소속팀 -> 시즌별 팀으로 Entity는 시즌별 코치 정보를 나타냄
+    private Team team;              // 소속팀 -> 시즌별 팀으로 Entity는 시즌별 코치 정보를 나타냄
+
+    @Column(name = "summoner_name")
+    private String summonerName;    // 소환사명
+
+    @Column(name = "name")
+    private String name;            // 이름
 }

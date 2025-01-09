@@ -25,11 +25,27 @@ public class PlayerRecord {
     @JoinColumn(name = "player_id")
     private Player player;          // 기록을 소유한 선수
 
-    @Enumerated
-    @Column(name = "league_code")
-    private LeagueCode leagueCode;  // 기록을 남긴 리그의 코드
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "game_id")
+    private Game game;              // 플레이한 게임
 
-    @Enumerated
-    @Column(name = "stage_code")
-    private StageCode stageCode;    // 기록을 남긴 라운드
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "champion_id")
+    private Champion champion;      // 플레이한 챔피언
+
+    @Column(name = "kill")
+    private int kill;               // 해당 경기에서 기록한 킬
+
+    @Column(name = "death")
+    private int death;              // 해당 경기에서 기록한 데스
+
+    @Column(name = "assist")
+    private int assist;             // 해당 경기에서 기록한 어시스트
+
+    @Column(name = "gold")
+    private int gold;               // Gold 수급량
+
+    @Column(name = "cs")
+    private int cs;                 // CS 수급량
+
 }

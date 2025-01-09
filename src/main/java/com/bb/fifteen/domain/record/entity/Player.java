@@ -28,4 +28,6 @@ public class Player {
 
     @OneToMany(mappedBy = "player")
     private List<PlayerRecord> playerRecords = new ArrayList<>();   // 선수 기록 목록
+
+
 }
