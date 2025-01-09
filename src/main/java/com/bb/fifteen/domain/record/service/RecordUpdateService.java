@@ -13,19 +13,19 @@ import static java.util.Map.ofEntries;
 public class RecordUpdateService {
 
     private final Map<String, StageCode> STAGE_CODE_MAP = ofEntries(
-            entry("RO16", ST00),
-            entry("QUARTER FINALS", ST01),
-            entry("SEMI FINALS", ST02),
-            entry("3RD PLACE MATCH", ST03),
-            entry("FINALS", ST04),
-            entry("시드결정전", ST05),
-            entry("RO12", ST06),
-            entry("시드챌린지", ST05),
-            entry("REGULAR SEASON", ST07),
-            entry("PLAYOFFS", ST08),
-            entry("Regular season", ST07),
-            entry("Play-ins", ST09),
-            entry("Playoffs", ST08)
+            entry("RO16", T16),
+            entry("QUARTER FINALS", T08),
+            entry("SEMI FINALS", T04),
+            entry("3RD PLACE MATCH", T03),
+            entry("FINALS", F00),
+            entry("시드결정전", S00),
+            entry("RO12", T12),
+            entry("시드챌린지", S00),
+            entry("REGULAR SEASON", R00),
+            entry("PLAYOFFS", P00),
+            entry("Regular season", R00),
+            entry("Play-ins", P01),
+            entry("Playoffs", P00)
     );
 
 
