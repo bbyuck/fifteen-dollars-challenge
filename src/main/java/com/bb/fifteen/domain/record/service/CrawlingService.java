@@ -2,6 +2,7 @@ package com.bb.fifteen.domain.record.service;
 
 import com.bb.fifteen.domain.record.code.SeasonCode;
 import com.bb.fifteen.domain.record.dto.crawling.SeasonData;
+import com.bb.fifteen.domain.record.dto.crawling.TeamMetaData;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
@@ -47,6 +48,10 @@ public class CrawlingService {
                 .collect(Collectors.toList());
     }
 
+//    public List<TeamMetaData> crawlingTeamMetaData(List<SeasonData> seasonDataList) {
+//
+//    }
+
     private Document getMethodCrawling(String url) {
         try {
             // 타겟 URL HTML 가져오기
@@ -58,7 +63,6 @@ public class CrawlingService {
             throw new IllegalStateException();
         }
     }
-
     private Document postMethodCrawling(String url, Map<String, String> parameters) {
         try {
             Connection.Response response = Jsoup.connect(url)
