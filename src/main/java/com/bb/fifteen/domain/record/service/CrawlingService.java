@@ -1,19 +1,18 @@
 package com.bb.fifteen.domain.record.service;
 
+import com.bb.fifteen.common.util.ResourceLoader;
 import com.bb.fifteen.domain.record.code.SeasonCode;
 import com.bb.fifteen.domain.record.dto.crawling.SeasonData;
-import com.bb.fifteen.domain.record.dto.crawling.TeamMetaData;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,12 +20,18 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CrawlingService {
+
+    private final ResourceLoader resourceLoader;
 
     public List<SeasonData> crawlingSeasonData() {
         String url = "https://www.lck.co.kr/stats/team";
 
-        return getMethodCrawling(url).select("ul#seasonList > li")
+        Document crawledDocument = getMethodCrawling(url);
+        Map<String, Object> roundsMap = parseSeasonRounds(crawledDocument);
+
+        List<SeasonData> seasonDataList = crawledDocument.select("ul#seasonList > li")
                 .stream()
                 .map(li -> {
                     String crawledSeasonLabel = li.selectFirst("span").text();
@@ -38,14 +43,22 @@ public class CrawlingService {
 
                     long dataId = Long.parseLong(dataIdAttr);
                     return SeasonData
-                        .builder()
-                        .id(dataId)
-                        .year(Integer.parseInt(crawledSeasonLabel.substring(0, 4)))
-                        .seasonCode(SeasonCode.get(crawledSeasonLabel.substring(5)))
-                        .build();
+                            .builder()
+                            .id(dataId)
+                            .year(Integer.parseInt(crawledSeasonLabel.substring(0, 4)))
+                            .seasonCode(SeasonCode.get(crawledSeasonLabel.substring(5)))
+                            .build();
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
+        return seasonDataList;
+    }
+
+    private Map<String, Object> parseSeasonRounds(Document crawledDocument) {
+        Elements scripts = crawledDocument.select("script");
+
+        return null;
     }
 
 //    public List<TeamMetaData> crawlingTeamMetaData(List<SeasonData> seasonDataList) {

@@ -1,20 +1,16 @@
 package com.bb.fifteen.domain.record.service;
 
+import com.bb.fifteen.common.util.ResourceLoader;
 import com.bb.fifteen.domain.record.dto.crawling.SeasonData;
 import org.assertj.core.api.Assertions;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class CrawlingServiceTest {
 
-    CrawlingService crawlingService = new CrawlingService();
+    CrawlingService crawlingService = new CrawlingService(new ResourceLoader());
 
 
     @Test
