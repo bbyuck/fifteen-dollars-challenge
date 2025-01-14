@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @Builder
 public class SeasonData {
-    private long id;
+    private long tournamentId;
     private int year;
     private SeasonCode seasonCode;
     private List<RoundData> roundData;

@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class TeamMetaData {
+public class TeamProfileMetaData {
 
     private Long id;
 

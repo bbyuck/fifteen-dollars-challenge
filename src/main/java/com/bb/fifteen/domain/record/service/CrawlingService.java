@@ -4,6 +4,7 @@ import com.bb.fifteen.common.util.ResourceLoader;
 import com.bb.fifteen.domain.record.code.SeasonCode;
 import com.bb.fifteen.domain.record.dto.crawling.RoundData;
 import com.bb.fifteen.domain.record.dto.crawling.SeasonData;
+import com.bb.fifteen.domain.record.dto.crawling.TeamProfileMetaData;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,46 +34,14 @@ import java.util.stream.Collectors;
 public class CrawlingService {
 
     private final ResourceLoader resourceLoader;
+    private final String TARGET_SERVER_DOMAIN = "https://www.lck.co.kr";
 
-    public List<SeasonData> crawlingSeasonData() {
-        String url = "https://www.lck.co.kr/stats/team";
-
-        Document crawledDocument = getMethodCrawling(url);
-        Map<Long, List<Map<String, String>>> roundsMap = parseSeasonRounds(crawledDocument);
-
-        return crawledDocument.select("ul#seasonList > li")
-                .stream()
-                .map(li -> {
-                    String crawledSeasonLabel = li.selectFirst("span").text();
-                    String dataIdAttr = li.attr("data-id");
-
-                    if (!StringUtils.hasText(dataIdAttr)) {
-                        return null;
-                    }
-
-                    long dataId = Long.parseLong(dataIdAttr);
-
-
-                    return SeasonData
-                            .builder()
-                            .id(dataId)
-                            .year(Integer.parseInt(crawledSeasonLabel.substring(0, 4)))
-                            .seasonCode(SeasonCode.get(crawledSeasonLabel.substring(5)))
-                            .roundData(roundsMap.get(dataId)
-                                    .stream()
-                                    .map(roundInfo -> RoundData
-                                            .builder()
-                                            .id(Long.valueOf(roundInfo.get("value")))
-                                            .label(roundInfo.get("label"))
-                                            .build()
-                                    )
-                                    .collect(Collectors.toList()))
-                            .build();
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
+    /**
+     * 시즌 정보 크롤링 하위 메소드
+     * 시즌 정보 중 라운드 (stage) 관련 정보 파싱
+     * @param crawledDocument
+     * @return
+     */
     private Map<Long, List<Map<String, String>>> parseSeasonRounds(Document crawledDocument) {
         Elements scripts = crawledDocument.select("script");
         String targetVariableDeclaration = "const rounds";
@@ -109,9 +79,61 @@ public class CrawlingService {
         throw new IllegalStateException("rounds 정보를 찾지 못했습니다.");
     }
 
-//    public List<TeamMetaData> crawlingTeamMetaData(List<SeasonData> seasonDataList) {
-//
-//    }
+    /**
+     * 시즌 정보 크롤링
+     * 시즌 목록
+     *      시즌별 스테이지 목록
+     * @return
+     */
+    public List<SeasonData> crawlingSeasonData() {
+        String targetUri = new StringBuilder().append(TARGET_SERVER_DOMAIN).append("/stats/team").toString();
+
+        Document crawledDocument = getMethodCrawling(targetUri);
+        Map<Long, List<Map<String, String>>> roundsMap = parseSeasonRounds(crawledDocument);
+
+        return crawledDocument.select("ul#seasonList > li")
+                .stream()
+                .map(li -> {
+                    String crawledSeasonLabel = li.selectFirst("span").text();
+                    String dataIdAttr = li.attr("data-id");
+
+                    if (!StringUtils.hasText(dataIdAttr)) {
+                        return null;
+                    }
+
+                    long dataId = Long.parseLong(dataIdAttr);
+
+                    return SeasonData
+                            .builder()
+                            .tournamentId(dataId)
+                            .year(Integer.parseInt(crawledSeasonLabel.substring(0, 4)))
+                            .seasonCode(SeasonCode.get(crawledSeasonLabel.substring(5)))
+                            .roundData(roundsMap.get(dataId)
+                                    .stream()
+                                    .map(roundInfo -> RoundData
+                                            .builder()
+                                            .stageId(Long.valueOf(roundInfo.get("value")))
+                                            .label(roundInfo.get("label"))
+                                            .build()
+                                    )
+                                    .collect(Collectors.toList()))
+                            .build();
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 팀 프로필 메타 정보 크롤링
+     * @return
+     */
+    public List<TeamProfileMetaData> crawlingTeamProfileMetaDataPerSeason(SeasonData seasonData) {
+        String targetUri = new StringBuilder().append(TARGET_SERVER_DOMAIN).append("/team/profile").toString();
+        Map<String, String> parameters = Map.of("tournamentId", String.valueOf(seasonData.getTournamentId()));
+        Document crawledDocument = postMethodCrawling(targetUri, parameters);
+
+        return null;
+    }
 
     private Document getMethodCrawling(String url) {
         try {

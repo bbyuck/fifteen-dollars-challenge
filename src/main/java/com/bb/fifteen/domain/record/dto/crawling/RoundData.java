@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class RoundData {
-    private long id;
+    private long stageId;
     private String label;
 
 }

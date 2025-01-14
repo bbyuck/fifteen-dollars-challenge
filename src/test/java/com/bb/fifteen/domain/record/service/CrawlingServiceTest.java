@@ -2,6 +2,7 @@ package com.bb.fifteen.domain.record.service;
 
 import com.bb.fifteen.common.util.ResourceLoader;
 import com.bb.fifteen.domain.record.dto.crawling.SeasonData;
+import com.bb.fifteen.domain.record.dto.crawling.TeamProfileMetaData;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,9 +26,15 @@ class CrawlingServiceTest {
     }
 
     @Test
-    @DisplayName("POST 메소드 크롤링 1 - 시즌별 라운드 목록 크롤링")
-    public void crawlingRoundListPerSeason() throws Exception {
+    @DisplayName("GET 메소드 크롤링 2 - 시즌별 팀 프로필 목록 크롤링")
+    public void crawlingTeamProfileMetadataList() throws Exception {
         // given
+
+        // season data 크롤링
+        List<SeasonData> seasonData = crawlingService.crawlingSeasonData();
+
+        //
+        List<TeamProfileMetaData> teamProfileMetaDataList = crawlingService.crawlingTeamProfileMetaDataPerSeason(seasonData.get(0));
 
         // when
 
