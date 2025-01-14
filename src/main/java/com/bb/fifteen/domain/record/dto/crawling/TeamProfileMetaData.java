@@ -1,6 +1,5 @@
 package com.bb.fifteen.domain.record.dto.crawling;
 
-import com.bb.fifteen.domain.record.code.SeasonCode;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,12 +7,22 @@ import lombok.Data;
 @Builder
 public class TeamProfileMetaData {
 
-    private Long id;
+    private Long teamId;            // id
 
-    private String name;
+    private String engName;         // 영어명
 
-    private int year;
+    private String initialName;     // 팀 명 이니셜
 
-    private SeasonCode seasonCode;
+    private SeasonData seasonData;  // 대상 시즌
+
+    private String since;           // 연혁
+
+/**
+ * 추후에 메소드로 제공
+ *
+ */
+//    private int foundedYear;        // 설립년도
+//    private int disbandmentYear;    // 해체연도
+//    private String korName;         // 한글명
 
 }

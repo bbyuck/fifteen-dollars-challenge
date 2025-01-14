@@ -1,7 +1,9 @@
 package com.bb.fifteen.domain.record.service;
 
 import com.bb.fifteen.common.util.ResourceLoader;
+import com.bb.fifteen.domain.record.code.PositionCode;
 import com.bb.fifteen.domain.record.code.SeasonCode;
+import com.bb.fifteen.domain.record.dto.crawling.PlayerProfileSeasonalMetaData;
 import com.bb.fifteen.domain.record.dto.crawling.RoundData;
 import com.bb.fifteen.domain.record.dto.crawling.SeasonData;
 import com.bb.fifteen.domain.record.dto.crawling.TeamProfileMetaData;
@@ -20,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -39,6 +38,7 @@ public class CrawlingService {
     /**
      * 시즌 정보 크롤링 하위 메소드
      * 시즌 정보 중 라운드 (stage) 관련 정보 파싱
+     *
      * @param crawledDocument
      * @return
      */
@@ -82,11 +82,14 @@ public class CrawlingService {
     /**
      * 시즌 정보 크롤링
      * 시즌 목록
-     *      시즌별 스테이지 목록
+     * 시즌별 스테이지 목록
+     *
      * @return
      */
     public List<SeasonData> crawlingSeasonData() {
-        String targetUri = new StringBuilder().append(TARGET_SERVER_DOMAIN).append("/stats/team").toString();
+        log.debug("시즌 정보 크롤링 start");
+
+        String targetUri = TARGET_SERVER_DOMAIN + "/stats/team";
 
         Document crawledDocument = getMethodCrawling(targetUri);
         Map<Long, List<Map<String, String>>> roundsMap = parseSeasonRounds(crawledDocument);
@@ -124,15 +127,93 @@ public class CrawlingService {
     }
 
     /**
-     * 팀 프로필 메타 정보 크롤링
+     * 시즌별 팀 프로필 메타 정보 크롤링
+     *
      * @return
      */
     public List<TeamProfileMetaData> crawlingTeamProfileMetaDataPerSeason(SeasonData seasonData) {
-        String targetUri = new StringBuilder().append(TARGET_SERVER_DOMAIN).append("/team/profile").toString();
-        Map<String, String> parameters = Map.of("tournamentId", String.valueOf(seasonData.getTournamentId()));
-        Document crawledDocument = postMethodCrawling(targetUri, parameters);
+        log.debug("시즌별 팀 프로필 메타 정보 크롤링 ====== {}", seasonData);
 
-        return null;
+        String targetUri = TARGET_SERVER_DOMAIN + "/team/profile";
+        Map<String, String> parameters = Map.of("tournamentId", String.valueOf(seasonData.getTournamentId()));
+
+        Document seasonTeamsUl = postMethodCrawling(targetUri, parameters);
+        Elements teamLis = seasonTeamsUl.select("li.item");
+
+        return teamLis
+                .stream()
+                .map(element -> {
+                            String[] idSplit = element.select("a.cont_top").attr("href").split("/");
+                            return TeamProfileMetaData
+                                    .builder()
+                                    .teamId(Long.valueOf(idSplit[idSplit.length - 1]))
+                                    .engName(element.select("p.team").text())
+                                    .initialName(element.select("strong.team_initial").text())
+                                    .since(element.select("p.since").text())
+                                    .seasonData(seasonData)
+                                    .build();
+                        }
+                )
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 시즌 팀 로스터 조회
+     *
+     * @param url
+     * @return
+     */
+    public Map<Long, List<PlayerProfileSeasonalMetaData>> crawlingPlayerProfileMetaDataPerSeasonTeam(TeamProfileMetaData teamProfileMetaData) {
+        log.debug("시즌 팀 로스터 크롤링 ====== {} {}", teamProfileMetaData.getSeasonData(), teamProfileMetaData.getInitialName());
+
+        String targetUri = TARGET_SERVER_DOMAIN + "/teams/profile/roster";
+        Map<String, String> parameters = Map.of(
+                "teamId", String.valueOf(teamProfileMetaData.getTeamId()),
+                "tournamentId", String.valueOf(teamProfileMetaData.getSeasonData().getTournamentId()));
+
+        Map<Long, List<PlayerProfileSeasonalMetaData>> answer = new HashMap<>();
+
+        Document document = postMethodCrawling(targetUri, parameters);
+        Elements positionElements = document.select("div.position");
+
+        for (Element positionElement : positionElements) {
+            String position = positionElement.selectFirst("em.tit_pos").text();
+
+            Elements positionPlayerATags = positionElement.select("a.link_player");
+
+            for (Element positionPlayerATag : positionPlayerATags) {
+
+                // playerId
+                String[] href = positionPlayerATag.attr("href").split("/");
+                long playerId = Long.parseLong(href[href.length - 1]);
+                answer.putIfAbsent(playerId, new ArrayList<>());
+
+                // name
+                String name = positionPlayerATag.select("strong.name").text();
+
+                // nickname
+                String nickname = positionPlayerATag.select("p.nick").text();
+
+                // engname
+                String playerEngName = positionPlayerATag.select("p.txt_eng").text();
+
+                List<PlayerProfileSeasonalMetaData> playerProfileSeasonalMetaDataList = answer.get(playerId);
+
+                playerProfileSeasonalMetaDataList.add(
+                        PlayerProfileSeasonalMetaData
+                                .builder()
+                                .playerId(playerId)
+                                .engName(playerEngName)
+                                .korName(name)
+                                .nickname(nickname)
+                                .positionCode(PositionCode.fromString(position))
+                                .seasonData(teamProfileMetaData.getSeasonData())
+                                .build());
+            }
+
+        }
+
+        return answer;
     }
 
     private Document getMethodCrawling(String url) {
@@ -155,7 +236,7 @@ public class CrawlingService {
                     .header("User-Agent", "PostmanRuntime/7.43.0")
                     .header("Content-Type", "application/x-www-form-urlencoded")
                     .header("Connection", "keep-alive")
-                    .timeout(5000)
+                    .timeout(10000)
                     .execute();
 
             return response.parse();
