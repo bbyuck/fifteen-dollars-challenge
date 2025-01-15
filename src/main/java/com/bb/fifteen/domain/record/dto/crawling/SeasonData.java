@@ -16,6 +16,6 @@ public class SeasonData {
     private List<RoundData> roundData;
 
     public String toString() {
-        return year + seasonCode.name();
+        return year + " " + seasonCode.name();
     }
 }

@@ -20,7 +20,7 @@ class CrawlingServiceTest {
     @DisplayName("GET 메소드 크롤링 1 - 시즌 목록 크롤링")
     public void crawlingSeasonList() throws Exception {
         // given
-        List<SeasonData> seasonDataList = crawlingService.crawlingSeasonData();
+        List<SeasonData> seasonDataList = crawlingService.crawlingSeasonDataFromLCK();
 
         // then
         Assertions.assertThat(seasonDataList).isNotEmpty();
@@ -33,7 +33,7 @@ class CrawlingServiceTest {
         // given
 
         // season data 크롤링
-        List<SeasonData> seasonData = crawlingService.crawlingSeasonData();
+        List<SeasonData> seasonData = crawlingService.crawlingSeasonDataFromLCK();
 
         //
         List<TeamProfileMetaData> teamProfileMetaDataList = crawlingService.crawlingTeamProfileMetaDataPerSeason(seasonData.get(0));
@@ -50,7 +50,7 @@ class CrawlingServiceTest {
     public void crawlingPlayerPerSeasonTeam() throws Exception {
         // given
         // 시즌 정보 목록
-        List<SeasonData> seasonDataList = crawlingService.crawlingSeasonData();
+        List<SeasonData> seasonDataList = crawlingService.crawlingSeasonDataFromLCK();
 //        Thread.sleep(1000);
 
         List<Map<Long, List<PlayerProfileSeasonalMetaData>>> allData = new ArrayList<>();
@@ -81,6 +81,6 @@ class CrawlingServiceTest {
 
         // then
 
-        System.out.println("success");
+
     }
 }

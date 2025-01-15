@@ -14,10 +14,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "team_records")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class TeamRecord {
+public class TeamRecord extends RecordBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

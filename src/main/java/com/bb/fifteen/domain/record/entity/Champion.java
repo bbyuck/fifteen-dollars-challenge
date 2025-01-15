@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "champions")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Champion {
+public class Champion extends RecordBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

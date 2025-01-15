@@ -86,9 +86,8 @@ public class CrawlingService {
      *
      * @return
      */
-    public List<SeasonData> crawlingSeasonData() {
+    public List<SeasonData> crawlingSeasonDataFromLCK() {
         log.debug("시즌 정보 크롤링 start");
-
         String targetUri = TARGET_SERVER_DOMAIN + "/stats/team";
 
         Document crawledDocument = getMethodCrawling(targetUri);

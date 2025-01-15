@@ -5,9 +5,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 /**
  * 시즌별 팀 Entity
@@ -16,10 +13,10 @@ import java.util.List;
 @Entity
 @Table(name = "teams")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Team {
+public class Team extends RecordBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

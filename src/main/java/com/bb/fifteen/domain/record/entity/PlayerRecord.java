@@ -1,5 +1,6 @@
 package com.bb.fifteen.domain.record.entity;
 
+import com.bb.fifteen.common.BaseEntity;
 import com.bb.fifteen.domain.record.code.LeagueCode;
 import com.bb.fifteen.domain.record.code.StageCode;
 import jakarta.persistence.*;
@@ -14,10 +15,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "player_records")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PlayerRecord {
+public class PlayerRecord extends RecordBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

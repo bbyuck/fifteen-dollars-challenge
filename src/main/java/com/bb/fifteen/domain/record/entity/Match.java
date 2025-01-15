@@ -19,10 +19,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "matches")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Match {
+public class Match extends RecordBaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 

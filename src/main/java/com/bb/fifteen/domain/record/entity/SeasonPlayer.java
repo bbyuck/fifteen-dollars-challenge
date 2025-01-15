@@ -1,5 +1,6 @@
 package com.bb.fifteen.domain.record.entity;
 
+import com.bb.fifteen.common.BaseEntity;
 import com.bb.fifteen.domain.record.code.PositionCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -13,10 +14,10 @@ import java.util.List;
 @Entity
 @Table(name = "season_player")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SeasonPlayer {
+public class SeasonPlayer extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
