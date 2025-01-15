@@ -22,8 +22,8 @@ public class PlayerRecord {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "player_id")
-    private Player player;          // 기록을 소유한 선수
+    @JoinColumn(name = "season_player_id")
+    private SeasonPlayer seasonPlayer;          // 기록을 소유한 선수
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "game_id")

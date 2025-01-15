@@ -22,8 +22,8 @@ public class TeamRecord {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id")
-    private Team team;              // 기록을 소유한 팀
+    @JoinColumn(name = "season_team_id")
+    private SeasonTeam seasonTeam;              // 기록을 소유한 팀
 
     @Enumerated(EnumType.STRING)
     @Column(name = "result_code")

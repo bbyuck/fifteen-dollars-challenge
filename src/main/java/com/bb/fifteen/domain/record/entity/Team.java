@@ -23,13 +23,7 @@ public class Team {
     @Column(name = "id")
     private Long id;
 
-    @JoinColumn(name = "season_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Season season;          // 시즌별 팀을 구분하기 위한 시즌 정보
-
     @Column(name = "name")
-    private String name;            // 해당 팀과 연관된 시즌의 팀 명
+    private String name;            // 팀 명 최신 정보
 
-    @OneToMany(mappedBy = "team")
-    private List<TeamRecord> records = new ArrayList<>();
 }

@@ -8,28 +8,25 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 선수 기준 정보 Entity
- */
 @Getter
 @Entity
-@Table(name = "players")
+@Table(name = "season_player")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Player {
+public class SeasonTeam {
 
-    @Id
     @GeneratedValue
+    @Id
     @Column(name = "id")
     private Long id;
 
-    @JoinColumn(name = "season_team_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private SeasonTeam team;  // 선수가 속한 팀 -> 시즌별 팀
+    @JoinColumn(name = "season_id")
+    private Season season;
 
-    @Column(name = "summoner_name")
-    private String summonerName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_id")
+    private Team team;
 
-    @Column(name = "name")
-    private String name;    // 선수 이름
-
+    @OneToMany(mappedBy = "seasonTeam")
+    private List<TeamRecord> records = new ArrayList<>();
 }
