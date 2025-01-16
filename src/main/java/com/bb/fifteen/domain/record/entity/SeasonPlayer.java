@@ -23,16 +23,26 @@ public class SeasonPlayer extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "season_id")
-    private Season season;
+    private Season season;              // 해당 기록 Entity가 존재하는 시즌
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "player_id")
-    private Player player;
+    private Player player;              // 해당 기록을 세운 선수 기준 정보 Entity
+
+    @Column(name = "summoner_name")
+    private String summonerName;        // 소환사명
 
     @Enumerated(EnumType.STRING)
     @Column(name = "position")
-    private PositionCode position;
+    private PositionCode position;      // 포지션
 
     @OneToMany(mappedBy = "seasonPlayer")
     private List<PlayerRecord> records = new ArrayList<>();
+
+    public SeasonPlayer(Season season, Player player, String summonerName, PositionCode position) {
+        this.season = season;
+        this.player = player;
+        this.summonerName = summonerName;
+        this.position = position;
+    }
 }

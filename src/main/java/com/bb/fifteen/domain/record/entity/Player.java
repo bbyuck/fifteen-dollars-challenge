@@ -1,5 +1,6 @@
 package com.bb.fifteen.domain.record.entity;
 
+import com.bb.fifteen.domain.record.code.SourceDomainCode;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,14 +20,20 @@ public class Player extends RecordBaseEntity {
     @Column(name = "id")
     private Long id;
 
-    @JoinColumn(name = "season_team_id")
-    @ManyToOne(fetch = FetchType.LAZY)
-    private SeasonTeam team;  // 선수가 속한 팀 -> 시즌별 팀
+    @Column(name = "kor_name")
+    private String korName;     // 선수 이름
 
-    @Column(name = "summoner_name")
-    private String summonerName;
+    @Column(name = "eng_name")
+    private String engName;     // 선수 영어이름
 
-    @Column(name = "name")
-    private String name;    // 선수 이름
+    public Player(String korName, String engName) {
+        this.korName = korName;
+        this.engName = engName;
+    }
 
+    public Player(String korName, String engName, Long sourceId, SourceDomainCode sourceDomain) {
+        this(korName, engName);
+        this.sourceId = sourceId;
+        this.sourceDomain = sourceDomain;
+    }
 }
