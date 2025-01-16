@@ -4,8 +4,8 @@ import com.bb.fifteen.domain.record.code.SourceDomainCode;
 import com.bb.fifteen.domain.record.code.StageCode;
 import com.bb.fifteen.domain.record.dto.crawling.RoundData;
 import com.bb.fifteen.domain.record.dto.crawling.SeasonData;
-import com.bb.fifteen.domain.record.dto.crawling.TeamProfileMetaData;
 import com.bb.fifteen.domain.record.entity.Season;
+import com.bb.fifteen.domain.record.entity.SeasonTeam;
 import com.bb.fifteen.domain.record.entity.Stage;
 import com.bb.fifteen.domain.record.entity.Team;
 import com.bb.fifteen.domain.record.repository.*;
@@ -30,6 +30,7 @@ public class RecordUpdateService {
     private final SeasonRepository seasonRepository;
     private final StageRepository stageRepository;
     private final TeamRepository teamRepository;
+    private final SeasonTeamRepository seasonTeamRepository;
 
     /**
      * Service
@@ -70,46 +71,60 @@ public class RecordUpdateService {
         SourceDomainCode sourceDomainCode = SourceDomainCode.LCK;
 
         seasonRepository.findAllWithStages()
-                .stream()
-                .map(season -> SeasonData
-                        .builder()
-                        .tournamentId(season.getSourceId())
-                        .roundData(season.getStages()
-                                .stream()
-                                .map(stage -> RoundData
-                                        .builder()
-                                        .stageId(stage.getSourceId())
-                                        .build())
-                                .collect(Collectors.toList())
-                        )
-                        .build()
-                ).forEach(seasonData -> {
-                    crawlingService.crawlingTeamProfileMetaDataPerSeason(seasonData)
-                            .stream()
-                            .map(teamProfileMetaData -> {
-                                String since = teamProfileMetaData.getSince();
-                                String[] sinceSplit = since.split("-");
+                .forEach(season -> {
+                            SeasonData seasonData = SeasonData
+                                    .builder()
+                                    .tournamentId(season.getSourceId())
+                                    .roundData(season.getStages()
+                                            .stream()
+                                            .map(stage -> RoundData
+                                                    .builder()
+                                                    .stageId(stage.getSourceId())
+                                                    .build())
+                                            .collect(Collectors.toList())
+                                    )
+                                    .build();
 
-                                int foundedYear = Integer.parseInt(sinceSplit[0]);
-                                int disbandedYear = sinceSplit.length == 2 ? Integer.parseInt(sinceSplit[1]) : -1;
+                            crawlingService.crawlingTeamProfileMetaDataPerSeason(seasonData)
+                                    .forEach(teamProfileMetaData -> {
+                                        String since = teamProfileMetaData.getSince();
+                                        int foundedYear = -1;
+                                        int disbandedYear = -1;
 
-                                Long sourceId = teamProfileMetaData.getTeamId();
-                                String seasonInitialName = teamProfileMetaData.getInitialName();
-                                String seasonName = teamProfileMetaData.getEngName();
+                                        if (since != null) {
+                                            String[] sinceSplit = since.split("-");
+                                            foundedYear = Integer.parseInt(sinceSplit[0]);
+                                            disbandedYear = sinceSplit.length == 2 ? Integer.parseInt(sinceSplit[1]) : -1;
+                                        }
 
-                                Team team = teamRepository.findBySourceIdAndSourceDomain(sourceId, sourceDomainCode)
-                                        .orElse(new Team(foundedYear, disbandedYear, sourceId, sourceDomainCode));
+                                        Long sourceId = teamProfileMetaData.getTeamId();
+                                        String seasonTeamInitialName = teamProfileMetaData.getInitialName();
+                                        String seasonTeamName = teamProfileMetaData.getEngName();
 
-                                if (team.getId() == null) {
-                                    teamRepository.save(team);
-                                }
+                                        /**
+                                         * sourceId - source domain code 로 팀 기준 정보 조회
+                                         * 없으면 새 Entity 생성
+                                         */
+                                        Team team = teamRepository.findBySourceIdAndSourceDomain(sourceId, sourceDomainCode)
+                                                .orElse(new Team(foundedYear, disbandedYear, sourceId, sourceDomainCode));
 
-                                /**
-                                 * TODO 여기까지
-                                 */
-                                return null;
-                            });
-                });
+                                        if (team.getId() == null) {
+                                            teamRepository.save(team);
+                                        }
 
+                                        /**
+                                         * Season - Team Entity로 SeasonTeam 조회
+                                         * 없으면 새 Entity 생성
+                                         */
+                                        SeasonTeam seasonTeam = seasonTeamRepository.findBySeasonAndTeam(season, team)
+                                                .orElse(new SeasonTeam(season, team, seasonTeamName, seasonTeamInitialName));
+                                        if (seasonTeam.getId() == null) {
+                                            seasonTeamRepository.save(seasonTeam);
+                                        }
+
+                                    });
+                        }
+                );
     }
+
 }

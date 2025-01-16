@@ -143,12 +143,13 @@ public class CrawlingService {
                 .stream()
                 .map(element -> {
                             String[] idSplit = element.select("a.cont_top").attr("href").split("/");
-                            return TeamProfileMetaData
+                    String since = element.select("p.since").text();
+                    return TeamProfileMetaData
                                     .builder()
                                     .teamId(Long.valueOf(idSplit[idSplit.length - 1]))
                                     .engName(element.select("p.team").text())
                                     .initialName(element.select("strong.team_initial").text())
-                                    .since(element.select("p.since").text().substring(6))
+                                    .since(StringUtils.hasText(since) ? since.substring(6) : null)
                                     .seasonData(seasonData)
                                     .build();
                         }
