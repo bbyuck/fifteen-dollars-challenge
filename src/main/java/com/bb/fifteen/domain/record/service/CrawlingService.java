@@ -148,7 +148,7 @@ public class CrawlingService {
                                     .teamId(Long.valueOf(idSplit[idSplit.length - 1]))
                                     .engName(element.select("p.team").text())
                                     .initialName(element.select("strong.team_initial").text())
-                                    .since(element.select("p.since").text())
+                                    .since(element.select("p.since").text().substring(6))
                                     .seasonData(seasonData)
                                     .build();
                         }
