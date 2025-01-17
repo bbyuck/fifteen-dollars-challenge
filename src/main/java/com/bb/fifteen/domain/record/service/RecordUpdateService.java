@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -116,7 +113,7 @@ public class RecordUpdateService {
                                                         disbandedYear = sinceSplit.length == 2 ? Integer.parseInt(sinceSplit[1]) : -1;
                                                     }
 
-                                                    return teamRepository.save(new Team(foundedYear, disbandedYear, sourceId, sourceDomainCode))
+                                                    return teamRepository.save(new Team(foundedYear, disbandedYear, sourceId, sourceDomainCode));
                                                 });
 
                                         /**
@@ -133,7 +130,10 @@ public class RecordUpdateService {
     @Transactional
     public void updatePlayerFromLCK() {
         SourceDomainCode sourceDomainCode = SourceDomainCode.LCK;
-        for (Map.Entry<Long, List<PlayerProfileSeasonalMetaData>> entry : seasonTeamRepository.findAllWithSeasonAndTeam()
+        List<SeasonTeam> allSeasonTeam = seasonTeamRepository.findAllWithSeasonAndTeam();
+
+        // 크롤링 해온 데이터
+        Set<Map.Entry<Long, List<PlayerProfileSeasonalMetaData>>> allSeasonPlayerMetaDataPerPlayer = allSeasonTeam
                 .stream()
                 .map(seasonTeam ->
                         crawlingService.crawlingPlayerProfileMetaDataPerSeasonTeam(
@@ -145,7 +145,7 @@ public class RecordUpdateService {
                                                         .tournamentId(seasonTeam.getSeason().getSourceId())
                                                         .build()
                                         )
-                                        .teamId(seasonTeam.getTeam().getId())
+                                        .teamId(seasonTeam.getTeam().getSourceId())
                                         .build()
                         )
                 )
@@ -160,9 +160,22 @@ public class RecordUpdateService {
                                 });
                     });
                     return map1_;
-                }).entrySet()) {
+                }).entrySet();
+
+        List<SeasonPlayer> seasonPlayers = new ArrayList<>();
+
+        /**
+         * 크롤링 해온 데이터 순회
+         *
+         * playerId : [ seasonPlayerData, ...]
+         */
+        for (Map.Entry<Long, List<PlayerProfileSeasonalMetaData>> entry : allSeasonPlayerMetaDataPerPlayer) {
             Long playerId = entry.getKey();
             List<PlayerProfileSeasonalMetaData> seasonPlayerDataList = entry.getValue();
+
+            /**
+             * player 기준정보 Entity
+             */
             Player player = playerRepository.findBySourceIdAndSourceDomain(playerId, sourceDomainCode)
                     .orElseGet(() -> {
                         String korName = "";
@@ -177,21 +190,53 @@ public class RecordUpdateService {
                             }
                         }
 
-                        return playerRepository.save(new Player(korName, engName, playerId, sourceDomainCode))
+                        return playerRepository.save(new Player(korName, engName, playerId, sourceDomainCode));
                     });
 
-            seasonPlayerRepository.saveAll(
-                    seasonPlayerDataList.stream().map(seasonPlayerData -> {
-                                Season season = seasonRepository.findBySourceIdAndSourceDomain(
-                                                seasonPlayerData.getSeasonData().getTournamentId(), sourceDomainCode)
-                                        .orElseThrow(() -> new RuntimeException("시즌 정보가 없습니다."));
+            /**
+             * TODO SUCCESS - 25.01.17
+             * 1. in 절로 바꿔서 season select
+             * 2. Map으로 Season.id를 키로 해 메모리에 올려 관리
+             */
+            Map<Long, Season> seasons = seasonRepository.findBySourceIds(
+                            seasonPlayerDataList
+                                    .stream()
+                                    .map(seasonPlayerData -> seasonPlayerData
+                                            .getSeasonTeamProfileMetaData()
+                                            .getSeasonData()
+                                            .getTournamentId())
+                                    .collect(Collectors.toList()
+                                    ))
+                    .stream()
+                    .collect(Collectors.toMap(
+                            season -> season.getId(),
+                            season -> season
+                    ));
 
-                                return seasonPlayerRepository.findBySeasonAndPlayer(season, player)
-                                        .orElseGet(() -> new SeasonPlayer(season, player, seasonPlayerData.getNickname(), seasonPlayerData.getPositionCode()));
-                            })
-                            .collect(Collectors.toList())
-            );
+            /**
+             * TODO
+             * 1. season, player외에 SeasonTeamPlayerMapping 엔티티로 SeasonPlayer 가져올 수 있도록 변경
+             * 2. SeasonTeamPlayerMapping은 season, team을 파라미터로 해서 in절에 녹이기 (Native)
+             *
+             * season, player, team, seasonTeam으로 SeasonTeamPlayerMapping 조회
+             *
+             * 3. 없다면 Mapping Entity도 추가
+             */
+
+//
+//            seasonPlayers.addAll(
+//                    seasonPlayerDataList.stream().map(seasonPlayerData -> {
+//                                Season season = seasonRepository.findBySourceIdAndSourceDomain(
+//                                                seasonPlayerData.getSeasonData().getTournamentId(), sourceDomainCode)
+//                                        .orElseThrow(() -> new RuntimeException("시즌 정보가 없습니다."));
+//
+//                                return seasonPlayerRepository.findBySeasonAndPlayer(season, player)
+//                                        .orElseGet(() -> new SeasonPlayer(season, player, seasonPlayerData.getNickname(), seasonPlayerData.getPositionCode()));
+//                            })
+//                            .collect(Collectors.toList()));
         }
+
+        seasonPlayerRepository.saveAll(seasonPlayers);
     }
 
 

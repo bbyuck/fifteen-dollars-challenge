@@ -8,7 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter
 @Entity
@@ -38,6 +40,9 @@ public class SeasonPlayer extends BaseEntity {
 
     @OneToMany(mappedBy = "seasonPlayer")
     private List<PlayerRecord> records = new ArrayList<>();
+
+    @OneToMany(mappedBy = "seasonPlayer")
+    private List<SeasonTeamPlayerMapping> seasonTeamPlayerMappings = new ArrayList<>();
 
     public SeasonPlayer(Season season, Player player, String summonerName, PositionCode position) {
         this.season = season;

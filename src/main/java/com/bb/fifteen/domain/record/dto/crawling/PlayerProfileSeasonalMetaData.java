@@ -13,6 +13,6 @@ public class PlayerProfileSeasonalMetaData {
     private String korName;
     private String engName;
     private PositionCode positionCode;
-    private SeasonData seasonData;
+    private TeamProfileMetaData seasonTeamProfileMetaData;
 
 }

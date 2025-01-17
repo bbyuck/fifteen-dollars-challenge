@@ -21,4 +21,8 @@ public interface SeasonRepository extends JpaRepository<Season, Long> {
 
     @Query("select s from Season s where s.sourceId = :sourceId and s.sourceDomain = :sourceDomain")
     Optional<Season> findBySourceIdAndSourceDomain(@Param("sourceId") Long sourceId, @Param("sourceDomain")SourceDomainCode sourceDomainCode);
+
+    @Query("select s from Season s where s.sourceId in (:sourceIds)")
+    List<Season> findBySourceIds(@Param("sourceIdList") List<Long> sourceIds);
+
 }

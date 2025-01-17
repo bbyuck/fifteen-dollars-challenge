@@ -1,13 +1,7 @@
 package com.bb.fifteen.domain.record.service;
 
-import com.bb.fifteen.domain.record.entity.Season;
-import com.bb.fifteen.domain.record.entity.SeasonTeam;
-import com.bb.fifteen.domain.record.entity.Stage;
-import com.bb.fifteen.domain.record.entity.Team;
-import com.bb.fifteen.domain.record.repository.SeasonRepository;
-import com.bb.fifteen.domain.record.repository.SeasonTeamRepository;
-import com.bb.fifteen.domain.record.repository.StageRepository;
-import com.bb.fifteen.domain.record.repository.TeamRepository;
+import com.bb.fifteen.domain.record.entity.*;
+import com.bb.fifteen.domain.record.repository.*;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +29,12 @@ class RecordUpdateServiceTest {
 
     @Autowired
     SeasonTeamRepository seasonTeamRepository;
+
+    @Autowired
+    PlayerRepository playerRepository;
+
+    @Autowired
+    SeasonPlayerRepository seasonPlayerRepository;
 
     @Test
     @DisplayName("시즌 데이터 업데이트 1 - LCK")
@@ -70,4 +70,21 @@ class RecordUpdateServiceTest {
         Assertions.assertThat(seasonTeams.size()).isGreaterThan(0);
     }
 
+    @Test
+    @DisplayName("선수 데이터 업데이트 1 - LCK")
+    void updatePlayerData() throws Exception {
+        // given
+        recordUpdateService.updateSeasonFromLCK();
+        recordUpdateService.updateTeamFromLCK();
+
+        // when
+        recordUpdateService.updatePlayerFromLCK();
+
+        // then
+        List<Player> players = playerRepository.findAll();
+        List<SeasonPlayer> seasonPlayers = seasonPlayerRepository.findAll();
+
+        Assertions.assertThat(players.size()).isGreaterThan(0);
+        Assertions.assertThat(seasonPlayers.size()).isGreaterThan(0);
+    }
 }

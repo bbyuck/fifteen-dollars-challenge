@@ -25,4 +25,17 @@ public class SeasonTeamPlayerMapping extends BaseEntity {
     @JoinColumn(name = "season_player_id")
     private SeasonPlayer seasonPlayer;
 
+//    @Override
+//    public int hashCode() {
+//        return id != null ? id.hashCode() : 0;
+//    }
+//
+//    @Override
+//    public boolean equals(Object obj) {
+//        if (this == obj) return true;
+//        if (obj == null || getClass() != obj.getClass()) return false;
+//
+//        SeasonTeamPlayerMapping entity = (SeasonTeamPlayerMapping) obj;
+//        return id != null && id.equals(entity.id);
+//    }
 }

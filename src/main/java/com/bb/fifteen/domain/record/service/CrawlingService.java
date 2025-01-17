@@ -207,7 +207,7 @@ public class CrawlingService {
                                 .korName(name)
                                 .nickname(nickname)
                                 .positionCode(PositionCode.fromString(position))
-                                .seasonData(teamProfileMetaData.getSeasonData())
+                                .seasonTeamProfileMetaData(teamProfileMetaData)
                                 .build());
             }
 

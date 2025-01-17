@@ -19,4 +19,7 @@ public interface SeasonTeamRepository extends JpaRepository<SeasonTeam, Long> {
     @EntityGraph(attributePaths = {"season", "team"})
     @Query("select st from SeasonTeam st")
     List<SeasonTeam> findAllWithSeasonAndTeam();
+
+    @Query("select st from SeasonTeam st where st.season = :season")
+    List<SeasonTeam> findBySeason(@Param("season") Season season);
 }
